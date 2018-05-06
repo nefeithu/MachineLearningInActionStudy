@@ -76,7 +76,24 @@ def  datingClassTest():
     print "err cnt= %f, testCnt=%d, err percent=%f" %(errCnt, numTest, errCnt/numTest)
             
     
+def ClassifyPerson():
+    resultList = ['not at all', 'in small does', 'in large does']
+    fliMiles = float(raw_input("frequent flier miles earned per year:"))
+    playTime = float(raw_input("percentage of time spent playing games:"))
+    iceCream = float(raw_input("liters of ice cream consumed per year:"))
+    
+    inputX = array([fliMiles, playTime, iceCream])
+    print "before auto norm", inputX
+    TrainX, TrainY = file2Matrix('datingTestSet2.txt')
+    normMat, ranges, minVals = autoNorm(TrainX)
+    inputX = (inputX - minVals)/ranges
+    print "after auto norm", inputX
+    
 
+    predict = classify0(inputX, normMat, TrainY, 3)
+    print "degree of like propably: ", resultList[predict - 1]
+    pass
 
 #mySimpleTest()
-datingClassTest()
+#datingClassTest()
+ClassifyPerson()
