@@ -32,6 +32,32 @@ def classify0(inX, dataSet, labels, k):
     #5. 返回出现频率最高的类别作为预测分类
     return sortedClassCount[0][0]
 
+def file2Matrix(fileName):
+    fr = open(fileName)
+    arrayoLines = fr.readlines()
+    numOfLine = len(arrayoLines)
+    trainX = zeros((numOfLine, 3))
+    trainY = []
+    index = 0
+    for line in arrayoLines:
+        line = line.strip()
+        listFromLine = line.split('\t')
+        trainX[index, :] = listFromLine[0:3]
+        trainY.append(int(listFromLine[-1]))
+        index += 1
+    return trainX, trainY
+
+def autoNorm(dataSet):
+    #参数0使得从列中选取最小、最大值
+    minVals = dataSet.min(0)
+    maxVals = dataSet.max(0)
+    ranges = maxVals - minVals
+    normDataSet = zeros(shape(dataSet))
+    m = dataSet.shape[0]
+    normDataSet = dataSet - tile(minVals, (m, 1))
+    normDataSet = dataSet / tile(ranges, (m, 1))
+    return normDataSet, ranges, minVals
+
 def mySimpleTest():
 #    trainX, trainY = createDataSet()
 #    testX = array([[0.5, 0.4]])
@@ -41,7 +67,10 @@ def mySimpleTest():
     #load data
     datingX, datingY = file2Matrix('datingTestSet2.txt')
 #    print datingX, datingY
-    myDisplay(datingX, datingY)
+    #myDisplay(datingX, datingY)
+    normMat, ranges, minVals = autoNorm(datingX)
+    print normMat
+    print ranges
 
 def myDisplay(datingX, datingY):
     import matplotlib
@@ -78,20 +107,23 @@ def myDisplay(datingX, datingY):
     #plt.legend((type1, type2, type3), ('not like', 'yiban', 'very like'))
     plt.show()
     
-def file2Matrix(fileName):
-    fr = open(fileName)
-    arrayoLines = fr.readlines()
-    numOfLine = len(arrayoLines)
-    trainX = zeros((numOfLine, 3))
-    trainY = []
-    index = 0
-    for line in arrayoLines:
-        line = line.strip()
-        listFromLine = line.split('\t')
-        trainX[index, :] = listFromLine[0:3]
-        trainY.append(int(listFromLine[-1]))
-        index += 1
-    return trainX, trainY
+def  datingClassTest():
+    testRation = 0.1
+    datingData, datingLables = file2Matrix('datingTestSet2.txt')
+    normData, ranges, minVals = autoNorm(datingData)
+    m = normData.shape[0]
+    numTest = int(m * testRation)
+    errCnt = 0
+    for i in range(numTest):
+        predict = classify0(normData[i, :], normData[numTest:m, :], datingLables[numTest:m, :], 3)
+        print "predict %d, real is %d" %(predict, datingLables[i])
+        if predict != datingLables[i]:
+            errCnt += 1.0
+    print "err cnt= %f, testCnt=%d, err percent=%f" %(errCnt, numTest, errCnt/numTest)
+            
+    
 
-mySimpleTest()
+
+#mySimpleTest()
+datingClassTest()
 
