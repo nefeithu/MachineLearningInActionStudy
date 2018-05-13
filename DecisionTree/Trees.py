@@ -26,6 +26,21 @@ def CreateTree(dataSet, labels):
     
     return myTree
 
+def Classify(myTree, feaLabels, testX):
+    rootStr = myTree.keys()[0]
+    rootDict = myTree[rootStr]
+    feaIdx = feaLabels.index(rootStr)
+    
+    for key in rootDict.keys():
+        if testX[feaIdx] == key:
+            if type(rootDict[key]).__name__ == 'dict':
+                classLabel =  Classify(rootDict[key], feaLabels, testX)
+            else:
+                classLabel = rootDict[key]
+    return classLabel
+                
+        
+
 def calcShannonEntropy(dataSet):
     nNum = len(dataSet)
     labelStatics = {}
